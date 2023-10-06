@@ -1,11 +1,11 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter.messagebox import *
-import data
+import library as database
 
 root = Tk()
 root.geometry("1000x800")
-
+database.Database(0, 4)
 classes = ("F3-CS", "F4-CS", "F5-CS", "F6-CS")
 
 def optionsmenu():
@@ -74,18 +74,12 @@ def viewclass():
 
     cols = ("student", "T1_CA", "T1_FM", "T2_CA","MA", "T2_FM", "FM", "Grade")
     
-    tree = ttk.Treeview(frame, columns = cols, height = 8, show = "headings")
-    tree.heading("student", text = "Student Name")
-    tree.heading("T1_CA", text = "T1-CA")
-    tree.heading("T1_FM", text = "T1-FM")
-    tree.heading("T2_CA", text = "T2-CA")
-    tree.heading("MA", text = "MA")
-    tree.heading("T2_FM", text = "T2-FM")
-    tree.heading("FM", text = "FM")
-    tree.heading("Grade", text = "Grade")
+    tree = ttk.Treeview(frame, columns = cols, height = len(cols), show = "headings")
+    for i in cols:
+        tree.heading(i, text = i)
 
-    for i in data.database[drop.index(classes)]:
-        tree.insert("", tk.END, values = data.database[drop.index(classes)])
+    # for i in data.database[drop.index(classes)]:
+    #    tree.insert("", tk.END, values = data.database[drop.index(classes)])
 
     tree.pack()
 
