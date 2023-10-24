@@ -6,7 +6,7 @@ import math
 class Database:
     database = {
         0: [["student","T1_CA", "T1_FM", "T2_CA","MA", "T2_FM", "FM", "Grade"],
-            ["Matthew",0,0,0,0,0,0,0]]
+            ["Matthew",0,0,0,0,0,0,"N"],["Matthew2",0,0,0,0,0,0,"N"],["Matthew3",0,0,0,0,0,0,"N"],["Matthew4",0,0,0,0,0,0,"N"]]
     }
     data_order = {
         "student" :0,"T1_CA":1, "T1_FM":2, "T2_CA":3,"MA":4, "T2_FM":5, "FM":6, "Grade":7
@@ -23,24 +23,26 @@ class Database:
             self.database[year] = [["student","T1_CA", "T1_FM", "T2_CA","MA", "T2_FM", "FM", "Grade"]]
         else: pass
 
-    def add_entry(self, name, year = None): #have year be defaulted as self.year if nothing valid is inputted
+    def add_entry(self, name:str, year:int, t1ca=None, t2ca=None, ma=None): #have year be defaulted as self.year if nothing valid is inputted
         if year != None:
             self.year = year
         if self.search(year, name) == -1:
             return -1
         else:
             #index starts from 1, 2, 3, 4, 5 for user convenience
-            self.database[year].append([None for i in range(7)])
-            self.database[year][len(self.database[year])-1].insert(0, name)
+            self.database[year].append([None for i in range(6)])
+            self.database[year][len(self.database[year])-2].insert(0, name)
+            self.database[year][len(self.database[year])-2].insert(-1, "N")
+        self.replace_entry(year, name , [t1ca, None, t2ca, ma, None, None,None])
 
 
     def check_data(self, entry_chosen):
         if entry_chosen[1] != None:
             entry_chosen[2] = entry_chosen[1]
         if entry_chosen[3] != None and entry_chosen[4] != None:
-            entry_chosen[5] = entry_chosen[3] * 60/100 + entry_chosen[4] * 40/100
+            entry_chosen[5] = int(entry_chosen[3] * 60/100 + entry_chosen[4] * 40/100)
         if (entry_chosen[2] != None) and (entry_chosen[5] != None):
-            entry_chosen[6] = (entry_chosen[2]+ entry_chosen[5])/2
+            entry_chosen[6] = int((entry_chosen[2]+ entry_chosen[5])/2)
         if entry_chosen[6] != None:
             match math.ceil(int(entry_chosen[6]/10)):
                 case 1:
@@ -77,10 +79,14 @@ class Database:
         for keys, values in kwargs.items():
             entry_chosen[self/self.data_order[keys]] = values
         self.database[year][self.search(year, name)] = self.check_data(entry_chosen)
-
-    def search(self, year, name):
+    def replace_entry(self, year:int, name:str, data: list):
         for i in self.database[year]:
             if i[0] == name:
-                return self.database[year].index(i)
+                self.database[year][self.database[year].index(i)][1:] = data
+                self.check_data(self.database[year][self.database[year].index(i)])
+    def search(self, year:int, name:str):
+        for i in self.database[year]:
+            if i[0] == name:
+                return self.database[year][self.database[year].index(i)]
         return -1
     

@@ -2,12 +2,12 @@ from tkinter import *
 from tkinter import ttk
 from tkinter.messagebox import *
 import library as database
-
+import re
 root = Tk()
 root.geometry("1000x800")
-database.Database(0, 4)
+bro = database.Database(0, 4)
 classes = ("F3-CS", "F4-CS", "F5-CS", "F6-CS")
-
+old = ""
 def goback():
     omframe = optionsmenu()
     omframe.pack()
@@ -64,115 +64,109 @@ def viewclass():
 
     clicked = StringVar()
     clicked.set(classes[0])
-
+    back = Button(frame, text = "Go Back", command = lambda:[frame.pack_forget(), goback()])
+    back.pack(side =TOP)
     drop = ttk.Combobox(frame, textvariable = clicked, values = classes) 
-    drop.pack()
+    drop.pack(padx = 10, side = TOP)
     drop.configure(state = "readonly")
 
     label = Label(frame, text = clicked.get())
-
-    def show():
-        label.config(text = clicked.get())
-        
-        for i in tree.get_children():
-            tree.delete(i)
-        for i in cols:
-            tree.heading(i, text = i)
-            tree.column(i, width = 100)
-            tree.column("Student", width = 300)
-
-        tree.pack()
-
-        for i in database.Database.database[classes.index(clicked.get())][1:]:
-            tree.insert("", END, values = i)
-  
-    btn = Button(frame, text = "Select", command = show)
-    btn.pack()
-    label.pack()
-
     cols = ("Student", "T1-CA", "T1-FM", "T2-CA","MA", "T2-FM", "FM", "Grade")
-    tree = ttk.Treeview(frame, columns = cols, height = len(cols), show = "headings")
-    
+    tree = ttk.Treeview(frame,columns = cols, height = 26, show = "headings")
     for i in cols:
         tree.heading(i, text = i)
         tree.column(i, width = 100)
         tree.column("Student", width = 300)
+        
+    tree.pack(padx = 50, side = BOTTOM, expand = 1)
+    scrollbar = ttk.Scrollbar(root, orient="vertical", command=tree.yview)
+    tree.configure(yscrollcommand=scrollbar.set)
+    #scrollbar.pack(side="right", fill="y")
+    def update_tree(tree):
+        label.config(text = clicked.get())
+        for item in tree.get_children():
+            tree.delete(item)
+        for i in bro.database[classes.index(clicked.get())][1:]:
+            tree.insert("", END, values = i)
+        frame.after(100, update_tree, tree)
+        frame.after(100, update_tree, label)
 
-    tree.pack()
 
-    for i in database.Database.database[classes.index(clicked.get())][1:]:
-        tree.insert("", END, values = i)
-
-
-    back = Button(frame, text = "Go Back", command = lambda:[frame.pack_forget(), goback()])
-    back.pack(side = "bottom")
+    update_tree(tree)
 
     return frame
 
 def viewstudent():
+    global old
     frame = Frame(root)
-
-    canvas = Canvas(frame, width = 430, height = 450)
+    cols = ("Student", "T1-CA", "T1-FM", "T2-CA","MA", "T2-FM", "FM", "Grade")
+    canvas = Canvas(frame, width = 430, height = 100)
     canvas.create_text(200, 40, text = "Viewing Student", font = ("Helvetica", "30", "bold"))
-    canvas.pack()
-
+    canvas.pack(side = TOP)
     clicked = StringVar()
     clicked.set(classes[0])
-
     clicked2 = StringVar()
-    clicked2.set(database.Database.database[classes.index(clicked.get())][1])
-
-    drop = ttk.Combobox(frame, textvariable = clicked, values = classes) 
-    drop.pack()
+    clicked2.set(bro.database[classes.index(clicked.get())][1])
+    types = ["student", "T1-CA", "T1-FM", "T2-CA","MA", "T2-FM", "FM", "Grade"]
+    drop = ttk.Combobox(frame, textvariable = clicked, values = classes)
+    drop.pack(padx = 20,side=LEFT)
     drop.configure(state = "readonly")
 
-    label = Label(frame, text = clicked.get())
+    #label = Label(frame, text = clicked.get())
 
-    drops = ttk.Combobox(frame, textvariable = clicked2, values = database.Database.database[classes.index(clicked.get())]) 
-    drops.pack()
-    drops.configure(state = "readonly")
-
-    labels = Label(frame, text = clicked2.get())
-
-    def show():
-        label.config(text = clicked.get())
-        
-        for i in tree.get_children():
-            tree.delete(i)
-        for i in cols:
-            tree.heading(i, text = i)
-            tree.column(i, width = 100)
-            tree.column("Student", width = 300)
-
-        tree.pack()
-
-        for i in database.Database.database[classes.index(clicked.get())][1:]:
-            tree.insert("", END, values = i)
-  
-    btn = Button(frame, text = "Select", command = show)
-    btn.pack()
-    label.pack()
-
-    cols = ("Student", "T1-CA", "T1-FM", "T2-CA","MA", "T2-FM", "FM", "Grade")
-    tree = ttk.Treeview(frame, columns = cols, height = len(cols), show = "headings")
-    
-    for i in cols:
-        tree.heading(i, text = i)
-        tree.column(i, width = 100)
-        tree.column("Student", width = 300)
-
-    tree.pack()
-
-    for i in database.Database.database[classes.index(clicked.get())][1:]:
-        tree.insert("", END, values = i)
-
-
+    drop_student = ttk.Combobox(frame, textvariable = clicked2, values = [i[0] for i in bro.database[classes.index(clicked.get())]])
+    drop_student.pack(padx = 50,side=LEFT)
+    drop_student.configure(state = "readonly")
+    label = Label(frame, text = clicked2.get())
+    label.pack(side = TOP)
     back = Button(frame, text = "Go Back", command = lambda:[frame.pack_forget(), goback()])
+    back.pack(side = LEFT)
+    text_box = Text(frame,height=13,width=40,wrap='word',font= ('Arial', 30, 'bold'))
+    text_box.pack(expand=True)
+    text_box.insert('end', "")
+
+    def check_update(text_box, label):
+        global old
+        if clicked2.get() != old:
+            old = clicked2.get()
+            text_box.delete(1.0, 'end')
+            if clicked.get() != None and clicked2.get()[0] != "(":
+                data = bro.search(year = classes.index(clicked.get()), name = clicked2.get())
+                message = ""
+                for i in types[1:]:
+                    message += i + ": " + str(data[types.index(i)])+"\n"
+                text_box.insert('end', message)
+                label.config(text = clicked2.get())   
+
+        frame.after(100, check_update, text_box, label)
+    def update_stuff():
+        delimiters = [': ', "\n"]
+        result = [text_box.get('1.0', 'end')]
+        for delimiter in delimiters:
+            temp_result = []
+            for item in result:
+                temp_result.extend(item.split(delimiter))
+            result = temp_result
+        temp_result = temp_result[1:-2:2]
+        temp_result = [int(i) if temp_result[-1] != i else i for i in temp_result]
+        bro.replace_entry(year = classes.index(clicked.get()), name = clicked2.get(), data = temp_result)
+        data = text_box.get(1.0, 'end').split("\n")
+        text_box.delete(1.0, 'end')
+        if clicked.get() != None and clicked2.get()[0] != "(":
+            data = bro.search(year = classes.index(clicked.get()), name = clicked2.get())
+            message = ""
+            for i in types[1:]:
+                message +=i + ": " + str(data[types.index(i)])+ "\n"
+            text_box.insert('end', message)
+    back = Button(frame, text = "Change", command = update_stuff)
     back.pack()
+
+    check_update(text_box, label)
 
     return frame
 
 def editclass():
+    global classes
     frame = Frame(root)
 
     canvas = Canvas(frame, width = 430, height = 450)
@@ -200,7 +194,7 @@ def editclass():
 
         tree.pack()
 
-        for i in database.Database.database[classes.index(clicked.get())][1:]:
+        for i in bro.database[classes.index(clicked.get())][1:]:
             tree.insert("", END, values = i)
   
     btn = Button(frame, text = "Select", command = show)
@@ -217,7 +211,7 @@ def editclass():
 
     tree.pack()
 
-    for i in database.Database.database[classes.index(clicked.get())][1:]:
+    for i in bro.database[classes.index(clicked.get())][1:]:
         tree.insert("", END, values = i)
 
     
@@ -243,55 +237,31 @@ def addstudent():
 
     label = Label(frame, text = clicked.get())
 
-    def show():
+    def show(label):
         label.config(text = clicked.get())
-        
-        for i in tree.get_children():
-            tree.delete(i)
-        for i in cols:
-            tree.heading(i, text = i)
-            tree.column(i, width = 100)
-            tree.column("Student", width = 300)
+        frame.after(100, show,label)
 
-        tree.pack()
-
-        for i in database.Database.database[classes.index(clicked.get())][1:]:
-            tree.insert("", END, values = i)
   
     btn = Button(frame, text = "Select", command = show)
     btn.pack()
     label.pack()
-
-    cols = ("Student", "T1-CA", "T1-FM", "T2-CA","MA", "T2-FM", "FM", "Grade")
-    tree = ttk.Treeview(frame, columns = cols, height = len(cols), show = "headings")
-    
-    for i in cols:
-        tree.heading(i, text = i)
-        tree.column(i, width = 100)
-        tree.column("Student", width = 300)
-
-    tree.pack()
-
-    for i in database.Database.database[classes.index(clicked.get())][1:]:
-        tree.insert("", END, values = i)
     
     name = Label(frame, text = "Student Name: ").pack()
     nameent = Entry(frame).pack()
 
-    t1ca = Label(frame, text = "T1-CA: ").pack()
-    t1caent = Entry(frame).pack()
+    # t1ca = Label(frame, text = "T1-CA: ").pack()
+    # t1caent = Entry(frame).pack()
 
-    t2ca = Label(frame, text = "T2-CA: ").pack()
-    t2caent = Entry(frame).pack()
+    # t2ca = Label(frame, text = "T2-CA: ").pack()
+    # t2caent = Entry(frame).pack()
 
-    ma = Label(frame, text = "MA: ").pack()
-    maent = Entry(frame).pack()
-
-    enter = Button(frame, text = "Add Student", command = database.Database.add_entry())
+    # ma = Label(frame, text = "MA: ").pack()
+    # maent = Entry(frame).pack()
+    enter = Button(frame, text = "Add Student", command = bro.add_entry(name = "gay", year = classes.index(clicked.get())))
 
     back = Button(frame, text = "Go Back", command = lambda:[frame.pack_forget(), goback()])
     back.pack(side = "bottom")
-
+    show(label)
     return frame
 
 def settings():
