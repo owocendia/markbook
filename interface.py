@@ -239,25 +239,25 @@ def addstudent():
 
     def show(label):
         label.config(text = clicked.get())
-        frame.after(100, show,label)
-
+        frame.after(100, show, label)
   
     btn = Button(frame, text = "Select", command = show)
     btn.pack()
     label.pack()
     
     name = Label(frame, text = "Student Name: ").pack()
-    nameent = Entry(frame).pack()
+    nameent = Entry(frame)
+    nameent.pack()
 
-    # t1ca = Label(frame, text = "T1-CA: ").pack()
-    # t1caent = Entry(frame).pack()
+    added = Label(frame, text = nameent.get())
+    added.pack()
 
-    # t2ca = Label(frame, text = "T2-CA: ").pack()
-    # t2caent = Entry(frame).pack()
+    def confirm(added):
+        added.config(text = nameent.get())
+        frame.after(100, confirm, added)
 
-    # ma = Label(frame, text = "MA: ").pack()
-    # maent = Entry(frame).pack()
-    enter = Button(frame, text = "Add Student", command = bro.add_entry(name = "gay", year = classes.index(clicked.get())))
+    enter = Button(frame, text = "Add Student", command = lambda:[bro.add_entry(name = str(nameent.get()), year = classes.index(clicked.get())), confirm(added), print(bro.search(classes.index(clicked.get()), str(nameent.get())))])
+    enter.pack()
 
     back = Button(frame, text = "Go Back", command = lambda:[frame.pack_forget(), goback()])
     back.pack(side = "bottom")
