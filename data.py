@@ -23,17 +23,16 @@ class Database:
             self.database[year] = [["student","T1_CA", "T1_FM", "T2_CA","MA", "T2_FM", "FM", "Grade"]]
         else: pass
 
-    def add_entry(self, name:str, year:int, t1ca=None, t2ca=None, ma=None): #have year be defaulted as self.year if nothing valid is inputted
+    def add_entry(self, name:str, year:int): #have year be defaulted as self.year if nothing valid is inputted
         if year != None:
             self.year = year
-        if self.search(year, name) == -1:
+        if self.search(year, name) != -1:
             return -1
         else:
             #index starts from 1, 2, 3, 4, 5 for user convenience
             self.database[year].append([None for i in range(6)])
-            self.database[year][len(self.database[year])-2].insert(0, name)
-            self.database[year][len(self.database[year])-2].insert(-1, "N")
-        self.replace_entry(year, name , [t1ca, None, t2ca, ma, None, None,None])
+            self.database[year][len(self.database[year])-1].insert(0, name)
+            self.database[year][len(self.database[year])-1].insert(-1, "N")
 
 
     def check_data(self, entry_chosen):

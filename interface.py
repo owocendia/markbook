@@ -1,105 +1,12 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter.messagebox import *
-
+import library as database
 import re
-
-import math
-
-#we don't do the 2023_2024 because its akward for input and processing
-#turns out its becoming a 3D_array
-
-class Database:
-    database = {
-        0: [["student","T1_CA", "T1_FM", "T2_CA","MA", "T2_FM", "FM", "Grade"],
-            ["Matthew",0,0,0,0,0,0,"N"],["Matthew2",0,0,0,0,0,0,"N"],["Matthew3",0,0,0,0,0,0,"N"],["Matthew4",0,0,0,0,0,0,"N"]]
-    }
-    data_order = {
-        "student" :0,"T1_CA":1, "T1_FM":2, "T2_CA":3,"MA":4, "T2_FM":5, "FM":6, "Grade":7
-    }
-    def __init__(self, startyear : int, numyear:int):
-        self.year = startyear
-        for i in range(numyear):
-            self.make_list(startyear+i)
-
-    def make_list(self, year): 
-        try: self.database[year]
-        except KeyError: 
-            self.year = year
-            self.database[year] = [["student","T1_CA", "T1_FM", "T2_CA","MA", "T2_FM", "FM", "Grade"]]
-        else: pass
-
-    def add_entry(self, name:str, year:int): #have year be defaulted as self.year if nothing valid is inputted
-        if year != None:
-            self.year = year
-        if self.search(year, name) != -1:
-            return -1
-        else:
-            #index starts from 1, 2, 3, 4, 5 for user convenience
-            self.database[year].append([None for i in range(6)])
-            self.database[year][len(self.database[year])-1].insert(0, name)
-            self.database[year][len(self.database[year])-1].insert(-1, "N")
-            print("success")
-
-
-    def check_data(self, entry_chosen):
-        if entry_chosen[1] != None:
-            entry_chosen[2] = entry_chosen[1]
-        if entry_chosen[3] != None and entry_chosen[4] != None:
-            entry_chosen[5] = int(entry_chosen[3] * 60/100 + entry_chosen[4] * 40/100)
-        if (entry_chosen[2] != None) and (entry_chosen[5] != None):
-            entry_chosen[6] = int((entry_chosen[2]+ entry_chosen[5])/2)
-        if entry_chosen[6] != None:
-            match math.ceil(int(entry_chosen[6]/10)):
-                case 1:
-                    entry_chosen[7] = "E"
-                case 2:
-                    entry_chosen[7] = "E"
-                case 3:
-                    entry_chosen[7] = "E"
-                case 4:
-                    entry_chosen[7] = "E"
-                case 5:
-                    entry_chosen[7] = "D"
-                case 6:
-                    entry_chosen[7] = "C"
-                case 7:
-                    entry_chosen[7] = "B"
-                case 8:
-                    entry_chosen[7] = "A"
-                case 9:
-                    entry_chosen[7] = "A*"
-                case 10:
-                    entry_chosen[7] = "A**"
-        return entry_chosen
-    def return_year(self, year):
-        return self.database[year]
-    def return_student(self,year,student):
-        return self.database[year][self.search(year, student)]
-    def add_data(self, year,name, **kwargs):
-        if year != None:
-            self.year = year
-        if name != None:
-            self.name = name
-        entry_chosen = self.database[year][self.search(year, name)]
-        for keys, values in kwargs.items():
-            entry_chosen[self/self.data_order[keys]] = values
-        self.database[year][self.search(year, name)] = self.check_data(entry_chosen)
-    def replace_entry(self, year:int, name:str, data: list):
-        for i in self.database[year]:
-            if i[0] == name:
-                self.database[year][self.database[year].index(i)][1:] = data
-                self.check_data(self.database[year][self.database[year].index(i)])
-    def search(self, year:int, name:str):
-        for i in self.database[year]:
-            if i[0] == name:
-                return self.database[year][self.database[year].index(i)]
-        return -1
-    
 
 root = Tk()
 root.geometry("1000x800")
-bro = Database(0, 4)
+bro = database.Database(0, 4)
 classes = ("F3-CS", "F4-CS", "F5-CS", "F6-CS")
 old = ""
 def goback():
@@ -113,7 +20,7 @@ def optionsmenu():
     canvas.create_text(200, 40, text = "Welcome to better SEQTA!", font = ("Helvetica", "30", "bold"))
     canvas.pack()
 
-    options = ("View Class", "View Student", "Add New Student")
+    options = ("View Class", "Edit Student", "Add New Student")
     optionbox = Listbox(
         frame,
         listvariable = Variable(value = options),
@@ -129,7 +36,7 @@ def optionsmenu():
             if selected == "View Class":
                 vcframe = viewclass()
                 vcframe.pack()
-            elif selected == "View Student":
+            elif selected == "Edit Student":
                 vsframe = viewstudent()
                 vsframe.pack()
             elif selected == "Add New Student":
@@ -189,7 +96,7 @@ def viewstudent():
     frame = Frame(root)
     cols = ("Student", "T1-CA", "T1-FM", "T2-CA","MA", "T2-FM", "FM", "Grade")
     canvas = Canvas(frame, width = 430, height = 100)
-    canvas.create_text(200, 40, text = "Viewing Student", font = ("Helvetica", "30", "bold"))
+    canvas.create_text(200, 40, text = "Editing Student", font = ("Helvetica", "30", "bold"))
     canvas.pack(side = TOP)
     clicked = StringVar()
     clicked.set(classes[0])
@@ -253,6 +160,61 @@ def viewstudent():
 
     return frame
 
+def editclass():
+    global classes
+    frame = Frame(root)
+
+    canvas = Canvas(frame, width = 430, height = 450)
+    canvas.create_text(200, 40, text = "Editing Class", font = ("Helvetica", "30", "bold"))
+    canvas.pack()
+
+    clicked = StringVar()
+    clicked.set(classes[0])
+
+    drop = ttk.Combobox(frame, textvariable = clicked, values = classes) 
+    drop.pack()
+    drop.configure(state = "readonly")
+
+    label = Label(frame, text = clicked.get())
+
+    def show():
+        label.config(text = clicked.get())
+        
+        for i in tree.get_children():
+            tree.delete(i)
+        for i in cols:
+            tree.heading(i, text = i)
+            tree.column(i, width = 100)
+            tree.column("Student", width = 300)
+
+        tree.pack()
+
+        for i in bro.database[classes.index(clicked.get())][1:]:
+            tree.insert("", END, values = i)
+  
+    btn = Button(frame, text = "Select", command = show)
+    btn.pack()
+    label.pack()
+
+    cols = ("Student", "T1-CA", "T1-FM", "T2-CA","MA", "T2-FM", "FM", "Grade")
+    tree = ttk.Treeview(frame, columns = cols, height = len(cols), show = "headings")
+    
+    for i in cols:
+        tree.heading(i, text = i)
+        tree.column(i, width = 100)
+        tree.column("Student", width = 300)
+
+    tree.pack()
+
+    for i in bro.database[classes.index(clicked.get())][1:]:
+        tree.insert("", END, values = i)
+
+    
+
+    back = Button(frame, text = "Go Back", command = lambda:[frame.pack_forget(), goback()])
+    back.pack()
+
+    return frame
 
 def addstudent():
     frame = Frame(root)
@@ -297,6 +259,14 @@ def addstudent():
     show(label)
     return frame
 
+def settings():
+    frame = Frame(root)
+
+    canvas = Canvas(frame, width = 430, height = 450)
+    text = canvas.create_text(200, 40, text = "Settings", font = ("Helvetica", "30", "bold"))
+    canvas.pack()
+
+    return frame
 
 omframe = optionsmenu()
 omframe.pack()
