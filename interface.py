@@ -90,7 +90,7 @@ def viewclass():
         for item in tree.get_children():
             tree.delete(item)
 
-        for i in db.database[classes.index(clicked.get())][1:]:
+        for i in db.return_year(classes.index(clicked.get()))[1:]:
             tree.insert("", END, values = i)
 
         frame.after(100, update_tree, tree)
@@ -103,7 +103,7 @@ def viewclass():
     return frame
 
 def viewstudent():
-    global old
+    old = ""
     frame = Frame(root)
     cols = ("Student", "T1-CA", "T1-FM", "T2-CA","MA", "T2-FM", "FM", "Grade")
 
@@ -114,14 +114,13 @@ def viewstudent():
     clicked = StringVar()
     clicked.set(classes[0])
     clicked2 = StringVar()
-    clicked2.set(db.database[classes.index(clicked.get())][1])
-
+    clicked2.set(db.return_year(classes.index(clicked.get()))[1][0])
     types = ["student", "T1-CA", "T1-FM", "T2-CA","MA", "T2-FM", "FM", "Grade"]
     drop = ttk.Combobox(frame, textvariable = clicked, values = classes)
     drop.pack(padx = 20,side=LEFT)
     drop.configure(state = "readonly")
 
-    drop_student = ttk.Combobox(frame, textvariable = clicked2, values = [i[0] for i in db.database[classes.index(clicked.get())]])
+    drop_student = ttk.Combobox(frame, textvariable = clicked2, values = [i[0] for i in db.return_year(classes.index(clicked.get()))])
     drop_student.pack(padx = 50,side=LEFT)
     drop_student.configure(state = "readonly")
 
@@ -135,20 +134,22 @@ def viewstudent():
     text_box.pack(expand=True)
     text_box.insert('end', "")
 
-    def check_update(text_box, label):
-        global old
+    def check_update(text_box, label, old):
         if clicked2.get() != old:
+            print(old)
             old = clicked2.get()
+            print(f"new: {old}")
             text_box.delete(1.0, 'end')
             if clicked.get() != None and clicked2.get()[0] != "(":
                 data = db.search(year = classes.index(clicked.get()), name = clicked2.get())
+                print(db.search(year = classes.index(clicked.get()), name = clicked2.get()))
                 message = ""
                 for i in types[1:]:
                     message += i + ": " + str(data[types.index(i)])+"\n"
                 text_box.insert('end', message)
                 label.config(text = clicked2.get())   
 
-        frame.after(100, check_update, text_box, label)
+        frame.after(100, check_update, text_box, label, old)
         
     def update_stuff():
         delimiters = [': ', "\n"]
@@ -173,7 +174,7 @@ def viewstudent():
     back = Button(frame, text = "Change", command = update_stuff)
     back.pack()
 
-    check_update(text_box, label)
+    check_update(text_box, label, old)
 
     return frame
 
@@ -212,7 +213,7 @@ def addstudent():
         added.config(text = nameent.get())
         frame.after(100, confirm, added)
 
-    enter = Button(frame, text = "Add Student", command = lambda:[db.add_entry(name = str(nameent.get()), year = classes.index(clicked.get())), confirm(added), print(db.search(classes.index(clicked.get()), str(nameent.get())))])
+    enter = Button(frame, text = "Add Student", command = lambda:[db.add_entry(name = str(nameent.get()), year = classes.index(clicked.get())), confirm(added)])
     enter.pack()
 
     back = Button(frame, text = "Go Back", command = lambda:[frame.pack_forget(), goback()])
