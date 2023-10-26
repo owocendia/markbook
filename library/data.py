@@ -5,8 +5,8 @@ import math
 
 class Database:
     database = {
-        0: [["student","T1_CA", "T1_FM", "T2_CA","MA", "T2_FM", "FM", "Grade"],
-            ["Matthew",0,0,0,0,0,0,"N"],["Matthew2",0,0,0,0,0,0,"N"],["Matthew3",0,0,0,0,0,0,"N"],["Matthew4",0,0,0,0,0,0,"N"]]
+        0: [["student", "T1_CA", "T1_FM", "T2_CA","MA", "T2_FM", "FM", "Grade"],
+            ["Matthew",100,100,100,100,100,100,"A*"],["Matthew2",70,70,70,70,70,70,"B"],["Matthew3",0,0,0,0,0,0,"N"],["Matthew4",0,0,0,0,0,0,"N"]]
     }
     data_order = {
         "student" :0,"T1_CA":1, "T1_FM":2, "T2_CA":3,"MA":4, "T2_FM":5, "FM":6, "Grade":7
@@ -20,7 +20,7 @@ class Database:
         try: self.database[year]
         except KeyError: 
             self.year = year
-            self.database[year] = [["student","T1_CA", "T1_FM", "T2_CA","MA", "T2_FM", "FM", "Grade"]]
+            self.database[year] = [["student", "T1_CA", "T1_FM", "T2_CA","MA", "T2_FM", "FM", "Grade"]]
         else: pass
 
     def add_entry(self, name:str, year:int): #have year be defaulted as self.year if nothing valid is inputted
@@ -32,7 +32,7 @@ class Database:
             #index starts from 1, 2, 3, 4, 5 for user convenience
             self.database[year].append([None for i in range(6)])
             self.database[year][len(self.database[year])-1].insert(0, name)
-            self.database[year][len(self.database[year])-1].insert(-1, "N")
+            self.database[year][len(self.database[year])-1].insert(7, "N")
 
 
     def check_data(self, entry_chosen):
