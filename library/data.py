@@ -63,15 +63,16 @@ class Database:
             #index starts from 1, 2, 3, 4, 5 for user convenience
             del database[year][self.search_index(year, name)]
             self.update_list(database)
-    def add_year(self, year:int): #have year be defaulted as self.year if nothing valid is inputted
+    def add_year(self): #have year be defaulted as self.year if nothing valid is inputted
         database = self.read_list()
-        if year == len(database):
-            self.make_list(1)
-    def remove_year(self, year:int):
+        self.make_list(1)
+        self.update_list(database)
+    def remove_year(self,year):
         database = self.read_list()
         try: database[year]
         except: return -1
         else: del database[year]
+        self.update_list(database)
     def check_data(self, entry_chosen):
         if entry_chosen[1] != None:
             entry_chosen[2] = entry_chosen[1]
