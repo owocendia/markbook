@@ -215,7 +215,8 @@ def addstudent():
 
     enter = Button(frame, text = "Add Student", command = lambda:[db.add_entry(name = str(nameent.get()), year = classes.index(clicked.get())), confirm(added)])
     enter.pack()
-
+    enter2 = Button(frame, text = "Remove Student", command = lambda:[db.remove_entry(name = str(nameent.get()), year = classes.index(clicked.get())), confirm(added)])
+    enter2.pack()
     back = Button(frame, text = "Go Back", command = lambda:[frame.pack_forget(), goback()])
     back.pack(side = "bottom")
     show(label)
@@ -235,7 +236,7 @@ def addclass():
     added = Label(frame, text = "")
     added.pack()
 
-    add = Button(frame, text = "Add Class", command = lambda:[classes.append(nameent.get()), added.config(text = "Added class " + nameent.get())])
+    add = Button(frame, text = "Add Class", command = lambda:[db.add_year(), classes.append(nameent.get()), added.config(text = "Added class " + nameent.get())])
     add.pack()
 
     clicked = StringVar()
@@ -248,7 +249,7 @@ def addclass():
     label = Label(frame, text = "")
     label.pack()
   
-    remove = Button(frame, text = "Remove Class", command = lambda:[classes.remove(clicked.get()), label.config(text = "Removed class " + clicked.get())])
+    remove = Button(frame, text = "Remove Class", command = lambda:[db.remove_year(classes.index(clicked.get())), classes.remove(clicked.get()), label.config(text = "Removed class " + clicked.get())])
     remove.pack()
 
     back = Button(frame, text = "Go Back", command = lambda:[frame.pack_forget(), goback()])
