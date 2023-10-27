@@ -57,11 +57,11 @@ class Database:
         database = self.read_list()
         if year != None:
             self.year = year
-        if self.search(year, name) == -1:
+        if self.search_index(year, name) == -1:
             return -1
         else:
             #index starts from 1, 2, 3, 4, 5 for user convenience
-            del database[year][self.search(year, name)]
+            del database[year][self.search_index(year, name)]
             self.update_list(database)
     def add_year(self, year:int): #have year be defaulted as self.year if nothing valid is inputted
         database = self.read_list()
@@ -133,5 +133,10 @@ class Database:
             if i[0] == name:
                 return database[year][database[year].index(i)]
         return -1
-    
+    def search_index(self, year:int, name:str):
+        database = self.read_list()
+        for i in database[year]:
+            if i[0] == name:
+                return database[year].index(i)
+        return -1
 bro = Database(1, 4)
