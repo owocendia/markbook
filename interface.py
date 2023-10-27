@@ -2,8 +2,8 @@ from tkinter import *
 from tkinter import ttk
 from tkinter.messagebox import *
 import library as database
-import playsound as playsound
-playsound("music.mp3", block = False)
+import playsound
+playsound.playsound("music.mp3", block = False)
 root = Tk()
 root.geometry("1000x800")
 db = database.Database(0, 4)
